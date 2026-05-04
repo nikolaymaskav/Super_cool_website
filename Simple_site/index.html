@@ -1,0 +1,1150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>// NULL.SECTOR — operator profile</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;700&family=Major+Mono+Display&family=Syne:wght@500;700;800&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --bg: #05060a;
+    --bg-2: #0a0d14;
+    --ink: #e6f7ff;
+    --dim: #5a6878;
+    --accent: #E5BE01;
+    --accent-deep: #E5BE01;
+    --magenta: #ff3ea5;
+    --acid: #d4ff5a;
+    --grid: rgba(229, 190, 1, 0.06);
+    --grid-strong: rgba(229, 190, 1, 0.18);
+    --frame: rgba(229, 190, 1, 0.35);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html, body {
+    background: var(--bg);
+    color: var(--ink);
+    font-family: 'JetBrains Mono', ui-monospace, monospace;
+    font-weight: 400;
+    line-height: 1.5;
+    overflow-x: hidden;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  body {
+    background:
+      radial-gradient(ellipse at 80% 0%, rgba(229,190,1,0.08), transparent 50%),
+      radial-gradient(ellipse at 10% 100%, rgba(255,62,165,0.06), transparent 50%),
+      var(--bg);
+    min-height: 100vh;
+    position: relative;
+  }
+
+  /* Background grid */
+  body::before {
+    content: "";
+    position: fixed; inset: 0;
+    background-image:
+      linear-gradient(var(--grid) 1px, transparent 1px),
+      linear-gradient(90deg, var(--grid) 1px, transparent 1px);
+    background-size: 60px 60px;
+    pointer-events: none;
+    z-index: 0;
+    mask-image: radial-gradient(ellipse at center, black 30%, transparent 80%);
+  }
+
+  /* Scanline overlay */
+  body::after {
+    content: "";
+    position: fixed; inset: 0;
+    pointer-events: none;
+    background: repeating-linear-gradient(
+      0deg,
+      rgba(0,0,0,0) 0px,
+      rgba(0,0,0,0) 2px,
+      rgba(0,0,0,0.10) 3px,
+      rgba(0,0,0,0) 4px
+    );
+    z-index: 100;
+    mix-blend-mode: multiply;
+  }
+
+  /* ============ NAV ============ */
+  nav {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 50;
+    padding: 22px 40px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    backdrop-filter: blur(8px);
+    background: rgba(5,6,10,0.55);
+    border-bottom: 1px solid rgba(229,190,1,0.12);
+  }
+  .logo {
+    font-family: 'Major Mono Display', monospace;
+    font-size: 1.05rem;
+    letter-spacing: 0.15em;
+    color: var(--accent);
+    text-transform: uppercase;
+    display: flex; align-items: center; gap: 10px;
+  }
+  .logo .dot {
+    display: inline-block; width: 8px; height: 8px;
+    background: var(--accent);
+    border-radius: 50%;
+    box-shadow: 0 0 12px var(--accent);
+    animation: pulse 1.8s infinite ease-in-out;
+  }
+  @keyframes pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.4; transform: scale(0.7); }
+  }
+  nav ul {
+    list-style: none;
+    display: flex;
+    gap: 36px;
+    font-size: 0.78rem;
+    text-transform: uppercase;
+    letter-spacing: 0.18em;
+  }
+  nav ul a {
+    color: var(--dim);
+    text-decoration: none;
+    position: relative;
+    transition: color 0.25s;
+  }
+  nav ul a:hover {
+    color: var(--accent);
+  }
+  nav ul a::before {
+    content: "// ";
+    color: var(--accent);
+    opacity: 0;
+    transition: opacity 0.2s;
+  }
+  nav ul a:hover::before {
+    opacity: 1;
+  }
+  .nav-status {
+    font-size: 0.72rem;
+    color: var(--dim);
+    letter-spacing: 0.1em;
+  }
+  .nav-status .live {
+    color: var(--acid);
+    animation: blink 1.4s infinite;
+  }
+  @keyframes blink {
+    0%, 60% { opacity: 1; }
+    61%, 100% { opacity: 0.2; }
+  }
+
+  /* ============ HERO ============ */
+  .hero {
+    position: relative;
+    min-height: 100vh;
+    padding: 140px 40px 80px;
+    display: grid;
+    grid-template-columns: 1.05fr 1fr;
+    gap: 60px;
+    align-items: center;
+    z-index: 2;
+  }
+
+  .hero-text {
+    position: relative;
+  }
+
+  .hero .meta {
+    font-size: 0.72rem;
+    letter-spacing: 0.3em;
+    color: var(--accent);
+    text-transform: uppercase;
+    margin-bottom: 22px;
+    display: flex; align-items: center; gap: 14px;
+  }
+  .hero .meta::before {
+    content: "";
+    width: 50px; height: 1px;
+    background: var(--accent);
+  }
+
+  h1.headline {
+    font-family: 'Syne', 'Major Mono Display', sans-serif;
+    font-weight: 800;
+    font-size: clamp(3rem, 8vw, 7.2rem);
+    line-height: 0.92;
+    letter-spacing: -0.03em;
+    color: var(--ink);
+    margin-bottom: 28px;
+    text-transform: uppercase;
+  }
+  h1.headline .glitch {
+    color: var(--accent);
+    position: relative;
+    display: inline-block;
+  }
+  h1.headline .strike {
+    -webkit-text-stroke: 1.5px var(--ink);
+    color: transparent;
+  }
+  h1.headline .accent {
+    color: var(--magenta);
+    font-style: italic;
+  }
+
+  .subheadline {
+    font-size: 0.95rem;
+    line-height: 1.65;
+    color: #98a8b8;
+    max-width: 480px;
+    margin-bottom: 38px;
+  }
+  .subheadline span.hi {
+    color: var(--ink);
+  }
+
+  .cta-row {
+    display: flex; gap: 16px; flex-wrap: wrap;
+  }
+  .btn {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.78rem;
+    text-transform: uppercase;
+    letter-spacing: 0.18em;
+    padding: 16px 28px;
+    text-decoration: none;
+    cursor: pointer;
+    border: 1px solid var(--frame);
+    color: var(--ink);
+    background: transparent;
+    position: relative;
+    transition: all 0.25s;
+    display: inline-flex; align-items: center; gap: 12px;
+  }
+  .btn::before {
+    content: "[";
+    color: var(--accent);
+    transition: margin-right 0.2s;
+  }
+  .btn::after {
+    content: "]";
+    color: var(--accent);
+    transition: margin-left 0.2s;
+  }
+  .btn:hover {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 1px var(--accent), 0 0 24px rgba(229,190,1,0.25);
+  }
+  .btn:hover::before { margin-right: 6px; }
+  .btn:hover::after { margin-left: 6px; }
+  .btn-primary {
+    background: var(--accent);
+    color: var(--bg);
+    border-color: var(--accent);
+    font-weight: 700;
+  }
+  .btn-primary::before, .btn-primary::after { color: var(--bg); }
+  .btn-primary:hover {
+    background: transparent;
+    color: var(--accent);
+  }
+  .btn-primary:hover::before, .btn-primary:hover::after { color: var(--accent); }
+  .btn-danger {
+    border-color: rgba(255,47,69,0.55);
+    color: #ff2f45;
+    text-shadow: 2px 0 rgba(255,62,165,0.6), -2px 0 rgba(229,190,1,0.35);
+  }
+  .btn-danger::before,
+  .btn-danger::after { color: #ff2f45; }
+  .btn-danger:hover {
+    border-color: #ff2f45;
+    box-shadow: 0 0 0 1px #ff2f45, 0 0 24px rgba(255,47,69,0.35);
+  }
+
+  /* Hero image */
+  .hero-image {
+    position: relative;
+    justify-self: end;
+    width: 100%;
+    max-width: 560px;
+    aspect-ratio: 3 / 4;
+  }
+  .hero-image .frame {
+    position: absolute; inset: 0;
+    border: 1px solid var(--frame);
+    overflow: hidden;
+    background: #000;
+  }
+  .hero-image img {
+    width: 100%; height: 100%;
+    object-fit: cover;
+    object-position: center 30%;
+    display: block;
+    filter: contrast(1.05) saturate(1.05);
+  }
+  /* Corner brackets */
+  .corner {
+    position: absolute;
+    width: 22px; height: 22px;
+    border: 2px solid var(--accent);
+    z-index: 5;
+  }
+  .corner.tl { top: -2px; left: -2px; border-right: none; border-bottom: none; }
+  .corner.tr { top: -2px; right: -2px; border-left: none; border-bottom: none; }
+  .corner.bl { bottom: -2px; left: -2px; border-right: none; border-top: none; }
+  .corner.br { bottom: -2px; right: -2px; border-left: none; border-top: none; }
+
+  /* HUD overlays on the image */
+  .hud {
+    position: absolute;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.62rem;
+    color: var(--accent);
+    letter-spacing: 0.1em;
+    pointer-events: none;
+    z-index: 4;
+    text-shadow: 0 0 6px rgba(229,190,1,0.5);
+  }
+  .hud.tl { top: 14px; left: 14px; }
+  .hud.tr { top: 14px; right: 14px; text-align: right; }
+  .hud.bl { bottom: 14px; left: 14px; }
+  .hud.br { bottom: 14px; right: 14px; text-align: right; }
+  .hud .label { color: var(--dim); }
+  .hud .val { color: var(--ink); }
+
+  /* Scanning bar */
+  .scan-bar {
+    position: absolute; left: 0; right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, var(--accent), transparent);
+    box-shadow: 0 0 12px var(--accent);
+    animation: scan 4.2s infinite linear;
+    z-index: 3;
+    pointer-events: none;
+  }
+  @keyframes scan {
+    0% { top: 0%; opacity: 0; }
+    8% { opacity: 1; }
+    92% { opacity: 1; }
+    100% { top: 100%; opacity: 0; }
+  }
+
+  /* Decorative hero side data */
+  .side-data {
+    position: absolute;
+    left: -20px;
+    top: 50%;
+    transform: translateY(-50%) rotate(-90deg);
+    transform-origin: 0 0;
+    font-size: 0.65rem;
+    color: var(--dim);
+    letter-spacing: 0.4em;
+    white-space: nowrap;
+  }
+
+  .ticker {
+    position: absolute;
+    bottom: 30px;
+    left: 0; right: 0;
+    overflow: hidden;
+    border-top: 1px solid rgba(229,190,1,0.15);
+    border-bottom: 1px solid rgba(229,190,1,0.15);
+    padding: 10px 0;
+    background: rgba(0,0,0,0.4);
+  }
+  .ticker-track {
+    display: flex; gap: 60px;
+    animation: ticker 35s linear infinite;
+    white-space: nowrap;
+    font-size: 0.72rem;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: var(--dim);
+  }
+  .ticker-track span { color: var(--accent); }
+  @keyframes ticker {
+    0% { transform: translateX(0); }
+    100% { transform: translateX(-50%); }
+  }
+
+  /* ============ STATS / ABOUT ============ */
+  section.stats {
+    padding: 120px 40px;
+    position: relative;
+    z-index: 2;
+    border-top: 1px solid rgba(229,190,1,0.12);
+    border-bottom: 1px solid rgba(229,190,1,0.12);
+  }
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1px;
+    background: rgba(229,190,1,0.12);
+  }
+  .stat {
+    background: var(--bg);
+    padding: 36px 28px;
+    transition: background 0.3s;
+  }
+  .stat:hover { background: rgba(229,190,1,0.04); }
+  .stat .label {
+    font-size: 0.7rem;
+    color: var(--dim);
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    margin-bottom: 10px;
+  }
+  .stat .value {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: 2.6rem;
+    line-height: 1;
+    color: var(--ink);
+    position: relative;
+  }
+  .stat .value .unit {
+    color: var(--accent);
+    font-size: 1.2rem;
+    margin-left: 4px;
+  }
+  .stat .value.error-overflow {
+    color: #ff2f45;
+    font-family: 'JetBrains Mono', ui-monospace, monospace;
+    font-size: clamp(0.86rem, 1.35vw, 1.2rem);
+    letter-spacing: 0.08em;
+    text-shadow:
+      2px 0 rgba(255,62,165,0.85),
+      -2px 0 rgba(229,190,1,0.55),
+      0 0 16px rgba(255,47,69,0.55);
+    animation: overflow-distort 0.9s infinite steps(2, end);
+  }
+  .stat .value.error-overflow::before,
+  .stat .value.error-overflow::after {
+    content: attr(data-text);
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    opacity: 0.72;
+  }
+  .stat .value.error-overflow::before {
+    color: #ff3ea5;
+    transform: translate(-2px, -1px);
+    clip-path: inset(0 0 58% 0);
+  }
+  .stat .value.error-overflow::after {
+    color: #E5BE01;
+    transform: translate(2px, 1px);
+    clip-path: inset(52% 0 0 0);
+  }
+  .stat .delta {
+    font-size: 0.7rem;
+    color: var(--acid);
+    margin-top: 8px;
+  }
+  .stat .delta.down { color: var(--magenta); }
+
+  /* ============ MANIFEST ============ */
+  section.manifest {
+    padding: 140px 40px;
+    max-width: 1400px;
+    margin: 0 auto;
+    position: relative;
+    z-index: 2;
+  }
+  .section-tag {
+    font-size: 0.72rem;
+    color: var(--accent);
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    margin-bottom: 30px;
+    display: flex; align-items: center; gap: 14px;
+  }
+  .section-tag::before {
+    content: "▸";
+    color: var(--magenta);
+  }
+
+  .manifest-grid {
+    display: grid;
+    grid-template-columns: 1fr 2fr;
+    gap: 60px;
+  }
+  .manifest h2 {
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: clamp(1.8rem, 3.5vw, 3.2rem);
+    line-height: 1.05;
+    letter-spacing: -0.02em;
+    color: var(--ink);
+    text-transform: uppercase;
+  }
+  .manifest h2 em {
+    color: var(--accent);
+    font-style: italic;
+  }
+  .manifest-body {
+    display: flex; flex-direction: column; gap: 20px;
+    font-size: 0.95rem;
+    line-height: 1.75;
+    color: #98a8b8;
+    max-width: 620px;
+  }
+  .manifest-body strong {
+    color: var(--ink);
+    font-weight: 500;
+  }
+  .manifest-body .marker {
+    color: var(--accent);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.75rem;
+    margin-right: 8px;
+  }
+
+  /* ============ MODULES ============ */
+  section.modules {
+    padding: 100px 40px 140px;
+    position: relative;
+    z-index: 2;
+    max-width: 1400px;
+    margin: 0 auto;
+  }
+  .module-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 24px;
+    margin-top: 50px;
+  }
+  .module {
+    border: 1px solid rgba(229,190,1,0.18);
+    padding: 28px 26px 32px;
+    background: rgba(10,13,20,0.5);
+    position: relative;
+    transition: all 0.35s;
+    cursor: pointer;
+    overflow: hidden;
+  }
+  .module::before {
+    content: "";
+    position: absolute; top: 0; left: 0;
+    width: 100%; height: 2px;
+    background: var(--accent);
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 0.4s ease;
+  }
+  .module:hover::before { transform: scaleX(1); }
+  .module:hover {
+    border-color: var(--accent);
+    transform: translateY(-4px);
+    box-shadow: 0 12px 40px rgba(0,0,0,0.5), 0 0 0 1px rgba(229,190,1,0.4);
+  }
+  .module .num {
+    font-family: 'Major Mono Display', monospace;
+    font-size: 0.85rem;
+    color: var(--accent);
+    letter-spacing: 0.15em;
+    margin-bottom: 30px;
+  }
+  .module h3 {
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 1.4rem;
+    line-height: 1.15;
+    color: var(--ink);
+    margin-bottom: 14px;
+    text-transform: uppercase;
+    letter-spacing: -0.01em;
+  }
+  .module p {
+    font-size: 0.85rem;
+    line-height: 1.65;
+    color: #8a98a8;
+  }
+  .module .arrow {
+    margin-top: 24px;
+    color: var(--accent);
+    font-size: 0.78rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    display: flex; align-items: center; gap: 10px;
+    transition: gap 0.3s;
+  }
+  .module:hover .arrow { gap: 16px; }
+  .module:focus-visible {
+    outline: 1px solid var(--accent);
+    outline-offset: 4px;
+  }
+
+  /* ============ MODULE POPUP ============ */
+  .modal-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 80;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 28px;
+    background:
+      linear-gradient(rgba(5,6,10,0.84), rgba(5,6,10,0.92)),
+      repeating-linear-gradient(
+        0deg,
+        rgba(229,190,1,0.05) 0px,
+        rgba(229,190,1,0.05) 1px,
+        transparent 1px,
+        transparent 7px
+      );
+    backdrop-filter: blur(10px);
+  }
+  .modal-overlay.is-open { display: flex; }
+  body.modal-open { overflow: hidden; }
+  .modal-window {
+    width: min(720px, 100%);
+    border: 1px solid var(--frame);
+    background:
+      linear-gradient(135deg, rgba(229,190,1,0.08), transparent 34%),
+      rgba(10,13,20,0.96);
+    box-shadow: 0 24px 80px rgba(0,0,0,0.65), 0 0 0 1px rgba(229,190,1,0.18);
+    position: relative;
+  }
+  .modal-window::before {
+    content: "";
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    background: var(--accent);
+    box-shadow: 0 0 22px rgba(229,190,1,0.45);
+  }
+  .modal-window.danger {
+    border-color: rgba(255,47,69,0.7);
+    background:
+      linear-gradient(135deg, rgba(255,47,69,0.18), transparent 35%),
+      rgba(10,13,20,0.98);
+    box-shadow: 0 24px 80px rgba(0,0,0,0.72), 0 0 0 1px rgba(255,47,69,0.35);
+  }
+  .modal-window.danger::before {
+    background: #ff2f45;
+    box-shadow: 0 0 24px rgba(255,47,69,0.62);
+  }
+  .modal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+    padding: 22px 24px;
+    border-bottom: 1px solid rgba(229,190,1,0.16);
+  }
+  .modal-kicker {
+    font-family: 'Major Mono Display', monospace;
+    font-size: 0.72rem;
+    letter-spacing: 0.2em;
+    color: var(--accent);
+    text-transform: uppercase;
+    margin-bottom: 8px;
+  }
+  .modal-header h3 {
+    font-family: 'Syne', sans-serif;
+    font-size: clamp(1.5rem, 4vw, 2.2rem);
+    line-height: 1;
+    letter-spacing: -0.02em;
+    text-transform: uppercase;
+  }
+  .modal-window.danger .modal-kicker,
+  .modal-window.danger .modal-header h3 {
+    color: #ff2f45;
+    text-shadow:
+      2px 0 rgba(255,62,165,0.85),
+      -2px 0 rgba(229,190,1,0.55),
+      0 0 16px rgba(255,47,69,0.55);
+    animation: overflow-distort 0.9s infinite steps(2, end);
+  }
+  .modal-close {
+    width: 42px;
+    height: 42px;
+    border: 1px solid rgba(229,190,1,0.28);
+    background: rgba(5,6,10,0.45);
+    color: var(--accent);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 1.15rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    flex: 0 0 auto;
+  }
+  .modal-close:hover,
+  .modal-close:focus-visible {
+    border-color: var(--accent);
+    box-shadow: 0 0 18px rgba(229,190,1,0.28);
+    outline: none;
+  }
+  .modal-body {
+    padding: 24px;
+  }
+  .modal-body p {
+    color: #98a8b8;
+    font-size: 0.92rem;
+    line-height: 1.75;
+    max-width: 620px;
+    margin-bottom: 24px;
+  }
+  .production-links {
+    display: grid;
+    gap: 12px;
+  }
+  .production-link {
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    gap: 16px;
+    align-items: center;
+    padding: 16px;
+    border: 1px solid rgba(229,190,1,0.16);
+    background: rgba(5,6,10,0.42);
+    color: var(--ink);
+    text-decoration: none;
+    transition: all 0.25s;
+  }
+  .production-link:hover,
+  .production-link:focus-visible {
+    border-color: var(--accent);
+    transform: translateX(4px);
+    box-shadow: 0 0 0 1px rgba(229,190,1,0.35);
+    outline: none;
+  }
+  .production-link.no-link {
+    cursor: default;
+  }
+  .production-link.no-link:hover {
+    transform: none;
+  }
+  .production-link .index,
+  .production-link .status {
+    color: var(--accent);
+    font-size: 0.72rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+  }
+  .production-link strong {
+    display: block;
+    font-family: 'Syne', sans-serif;
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+    margin-bottom: 4px;
+  }
+  .production-link span:not(.index):not(.status) {
+    color: #8a98a8;
+    font-size: 0.78rem;
+  }
+  .danger-actions {
+    display: flex;
+    gap: 14px;
+    flex-wrap: wrap;
+    margin-top: 26px;
+  }
+
+  /* ============ CTA ============ */
+  section.cta {
+    padding: 120px 40px;
+    text-align: center;
+    position: relative;
+    z-index: 2;
+    border-top: 1px solid rgba(229,190,1,0.12);
+  }
+  section.cta h2 {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: clamp(2.2rem, 6vw, 5rem);
+    line-height: 1;
+    letter-spacing: -0.03em;
+    text-transform: uppercase;
+    margin-bottom: 30px;
+  }
+  section.cta h2 em {
+    color: var(--magenta);
+    font-style: italic;
+  }
+  section.cta p {
+    font-size: 0.95rem;
+    color: #98a8b8;
+    max-width: 480px;
+    margin: 0 auto 40px;
+    line-height: 1.65;
+  }
+
+  /* ============ FOOTER ============ */
+  footer {
+    padding: 50px 40px 30px;
+    border-top: 1px solid rgba(229,190,1,0.12);
+    position: relative;
+    z-index: 2;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.72rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--dim);
+    flex-wrap: wrap;
+    gap: 20px;
+  }
+  footer .links { display: flex; gap: 28px; }
+  footer a { color: var(--dim); text-decoration: none; transition: color 0.2s; }
+  footer a:hover { color: var(--accent); }
+
+  /* ============ RESPONSIVE ============ */
+  @media (max-width: 900px) {
+    nav { padding: 18px 20px; }
+    nav ul { display: none; }
+    .hero {
+      grid-template-columns: 1fr;
+      padding: 110px 20px 60px;
+      gap: 40px;
+    }
+    .hero-image { max-width: 100%; justify-self: stretch; }
+    section.stats, section.manifest, section.modules, section.cta, footer {
+      padding-left: 20px; padding-right: 20px;
+    }
+    .stats-grid { grid-template-columns: repeat(2, 1fr); }
+    .manifest-grid { grid-template-columns: 1fr; gap: 30px; }
+    .module-grid { grid-template-columns: 1fr; }
+    .modal-overlay { padding: 18px; }
+    .modal-header, .modal-body { padding: 20px; }
+    .production-link {
+      grid-template-columns: 1fr;
+      gap: 8px;
+    }
+    .side-data { display: none; }
+  }
+
+  /* Glitch effect */
+  @keyframes glitch-x {
+    0%, 92%, 100% { transform: translateX(0); }
+    93% { transform: translateX(-3px); }
+    94% { transform: translateX(2px); }
+    95% { transform: translateX(-1px); }
+  }
+  @keyframes overflow-distort {
+    0%, 100% { transform: skewX(0deg) translateX(0); filter: saturate(1); }
+    20% { transform: skewX(-7deg) translateX(-1px); filter: saturate(1.7); }
+    45% { transform: skewX(5deg) translateX(2px); filter: saturate(1.3); }
+    70% { transform: skewX(-3deg) translateX(1px); filter: saturate(2); }
+  }
+  h1.headline .glitch {
+    animation: glitch-x 5s infinite;
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="logo"><span class="dot"></span> NULL.SECTOR</div>
+  <ul>
+    <li><a href="#manifest">Manifest</a></li>
+    <li><a href="#modules">Modules</a></li>
+    <li><a href="#archive">Archive</a></li>
+    <li><a href="#contact">Contact</a></li>
+  </ul>
+  <div class="nav-status"><span class="live">●</span> SIGNAL_LIVE</div>
+</nav>
+
+<section class="hero">
+  <div class="side-data">SYS_LOG // 0x47.A2.FF // OPERATOR_ID 0991 // STATUS::ACTIVE</div>
+
+  <div class="hero-text">
+    <div class="meta">PROFILE_RENDER &nbsp;//&nbsp; v3.4.1</div>
+    <h1 class="headline">
+      <span class="glitch">Half</span><br>
+      <span class="strike">human,</span><br>
+      <span class="accent">half</span> signal.
+    </h1>
+    <p class="subheadline">
+      <span class="hi">Operator profile loaded.</span> Designer, builder, and digital strategist mapping the line between comms and construction - turning concepts into shipped systems with absolute precision.
+    </p>
+    <div class="cta-row">
+      <a href="#contact" class="btn btn-primary">Initiate Contact</a>
+      <button class="btn btn-primary" type="button" data-modal-open="github-exit-modal" aria-haspopup="dialog" aria-controls="github-exit-modal">GitHub</button>
+      <a href="#modules" class="btn">View Modules</a>
+      <a href="../files/Nikolasj_Maskavs_Resume.pdf" class="btn" target="_blank" rel="noopener">View CV</a>
+    </div>
+  </div>
+
+  <div class="hero-image">
+    <div class="frame">
+      <div class="corner tl"></div>
+      <div class="corner tr"></div>
+      <div class="corner bl"></div>
+      <div class="corner br"></div>
+      <img src="../image/head.jpg" alt="operator portrait" />
+      <div class="hud tl">
+        <div class="label">// SUBJECT_ID</div>
+        <div class="val">0991-NULL</div>
+      </div>
+      <div class="hud tr">
+        <div class="label">SCAN_PROGRESS //</div>
+        <div class="val">98.7%</div>
+      </div>
+      <div class="hud bl">
+        <div class="label">// VERTICES</div>
+        <div class="val">478 / 478</div>
+      </div>
+      <div class="hud br">
+        <div class="label">FRAMERATE //</div>
+        <div class="val">60.00 fps</div>
+      </div>
+      <div class="scan-bar"></div>
+    </div>
+  </div>
+</section>
+
+<div class="ticker">
+  <div class="ticker-track">
+    <div>UPLINK ESTABLISHED <span>//</span> NEURAL_MESH SYNCED <span>//</span> RENDERING_AT_60FPS <span>//</span> 478 VERTICES TRACKED <span>//</span> COLD-START COMPLETE <span>//</span> NEW PROJECT INDEXED <span>//</span> SIGNAL STRENGTH: NOMINAL <span>//</span></div>
+    <div>UPLINK ESTABLISHED <span>//</span> NEURAL_MESH SYNCED <span>//</span> RENDERING_AT_60FPS <span>//</span> 478 VERTICES TRACKED <span>//</span> COLD-START COMPLETE <span>//</span> NEW PROJECT INDEXED <span>//</span> SIGNAL STRENGTH: NOMINAL <span>//</span></div>
+  </div>
+</div>
+
+<section class="stats">
+  <div class="stats-grid">
+    <div class="stat">
+      <div class="label">Years_Active</div>
+      <div class="value">05<span class="unit">y</span></div>
+      <div class="delta">+ ongoing</div>
+    </div>
+    <div class="stat">
+      <div class="label">Projects_Shipped</div>
+      <div class="value">9</div>
+      <div class="delta">+Ongoing</div>
+    </div>
+    <div class="stat">
+      <div class="label">Coffee_Consumed</div>
+      <div class="value">∞</div>
+      <div class="delta down">caffeine_critical</div>
+    </div>
+    <div class="stat">
+      <div class="label">Bugs_Squashed</div>
+      <div class="value error-overflow" data-text="ERR_INTEGER_OVERFLOW">ERR_INTEGER_OVERFLOW</div>
+      <div class="delta">acceptable</div>
+    </div>
+  </div>
+</section>
+
+<section class="manifest" id="manifest">
+  <div class="section-tag">[ 01 ] &nbsp; OPERATING_MANIFEST</div>
+  <div class="manifest-grid">
+    <h2>Build sharp.<br>Ship cleaner.<br>Stay <em>fun</em>.</h2>
+    <div class="manifest-body">
+      <p><span class="marker">&gt;</span> I work at the intersection of communication and engineering, treating every project like a system to be diagrammed, prototyped, and pushed into production with no room for error.</p>
+      <p><span class="marker">&gt;</span> The wireframe isn't a metaphor — it's the methodology. <strong>See the structure first.</strong> Then layer the surface. Things that skip step one fall apart at scale.</p>
+      <p><span class="marker">&gt;</span> Currently building tools and small worlds for clients who want their work to feel <strong>alive</strong>, while bridging communication between engineers and operators.</p>
+    </div>
+  </div>
+</section>
+
+<section class="modules" id="modules">
+  <div class="section-tag">[ 02 ] &nbsp; ACTIVE_MODULES</div>
+  <div class="module-grid">
+    <div class="module" role="button" tabindex="0" data-modal-open="automation-modal" aria-haspopup="dialog" aria-controls="automation-modal">
+      <div class="num">// 01</div>
+      <h3>Workflow Automation</h3>
+      <p>n8n, Zapier, and Make systems that reduce mundane department tasks so people can spend freed up time on work that needs their judgment.</p>
+      <div class="arrow">Read spec →</div>
+    </div>
+    <div class="module" role="button" tabindex="0" data-modal-open="web-builds-modal" aria-haspopup="dialog" aria-controls="web-builds-modal">
+      <div class="num">// 02</div>
+      <h3>Web Builds</h3>
+      <p>Custom-coded sites that don't look like everyone else's. Performance-budgeted, animation-tuned, deployed clean.</p>
+      <div class="arrow">Read spec →</div>
+    </div>
+  </div>
+</section>
+
+<div class="modal-overlay" id="automation-modal" role="dialog" aria-modal="true" aria-labelledby="automation-title" aria-hidden="true">
+  <div class="modal-window" role="document">
+    <div class="modal-header">
+      <div>
+        <div class="modal-kicker">// AUTOMATION_INDEX</div>
+        <h3 id="automation-title">Workflow Automation</h3>
+      </div>
+      <button class="modal-close" type="button" data-modal-close aria-label="Close automation popup">X</button>
+    </div>
+    <div class="modal-body">
+      <p>Automation builds for departments that are stuck repeating the same low leverage tasks. The goal is simple: remove friction, protect human judgment, and give capable people more time for work that actually moves the operation.</p>
+      <div class="production-links">
+        <div class="production-link no-link">
+          <span class="index">// 01</span>
+          <span>
+            <strong>n8n Systems</strong>
+            <span>Custom workflows, API handoffs, alerts, and internal process automation</span>
+          </span>
+          <span class="status">READY</span>
+        </div>
+        <div class="production-link no-link">
+          <span class="index">// 02</span>
+          <span>
+            <strong>Zapier Operations</strong>
+            <span>Fast automations between sales, support, finance, and admin tools</span>
+          </span>
+          <span class="status">READY</span>
+        </div>
+        <div class="production-link no-link">
+          <span class="index">// 03</span>
+          <span>
+            <strong>Make Scenarios</strong>
+            <span>Multi step department workflows with routing, formatting, and checks</span>
+          </span>
+          <span class="status">READY</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="web-builds-modal" role="dialog" aria-modal="true" aria-labelledby="web-builds-title" aria-hidden="true">
+  <div class="modal-window" role="document">
+    <div class="modal-header">
+      <div>
+        <div class="modal-kicker">// PRODUCTION_INDEX</div>
+        <h3 id="web-builds-title">Web Builds</h3>
+      </div>
+      <button class="modal-close" type="button" data-modal-close aria-label="Close web builds popup">X</button>
+    </div>
+    <div class="modal-body">
+      <p>Each individual website in production was specifically tailored around the needs, goals, and operating reality of the customer. No template cargo, no one-size-fits-all shell.</p>
+      <div class="production-links">
+        <a class="production-link" href="https://essentials.lv/" target="_blank" rel="noopener">
+          <span class="index">// 01</span>
+          <span>
+            <strong>Essentials</strong>
+            <span>https://essentials.lv/</span>
+          </span>
+          <span class="status">LIVE</span>
+        </a>
+        <a class="production-link" href="https://nonstoprecords.lv/" target="_blank" rel="noopener">
+          <span class="index">// 02</span>
+          <span>
+            <strong>Nonstop Records</strong>
+            <span>https://nonstoprecords.lv/</span>
+          </span>
+          <span class="status">LIVE</span>
+        </a>
+        <a class="production-link" href="https://www.brillante.lv/" target="_blank" rel="noopener">
+          <span class="index">// 03</span>
+          <span>
+            <strong>Brillante</strong>
+            <span>https://www.brillante.lv/</span>
+          </span>
+          <span class="status">LIVE</span>
+        </a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="github-exit-modal" role="dialog" aria-modal="true" aria-labelledby="github-exit-title" aria-hidden="true">
+  <div class="modal-window danger" role="document">
+    <div class="modal-header">
+      <div>
+        <div class="modal-kicker">// EXTERNAL_ROUTE_WARNING</div>
+        <h3 id="github-exit-title">Leave Website</h3>
+      </div>
+      <button class="modal-close" type="button" data-modal-close aria-label="Close GitHub warning">X</button>
+    </div>
+    <div class="modal-body">
+      <p>You are about to leave this website and route to GitHub.</p>
+      <div class="danger-actions">
+        <a class="btn btn-danger" href="https://github.com/nikolaymaskav">OK</a>
+        <button class="btn" type="button" data-modal-close>Cancel</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<section class="cta" id="contact">
+  <div class="section-tag" style="justify-content: center;">[ 03 ] &nbsp; OPEN_CHANNEL</div>
+  <h2>Got a signal?<br><em>Send it.</em></h2>
+  <p>Free slots open Q2. Brief me on the project, the deadline, and the energy. I'll come back with a plan or a polite no.</p>
+  <a href="mailto:hello@example.com" class="btn btn-primary">hello@nullsector.io</a>
+</section>
+
+<footer>
+  <div>© 2026 // NULL.SECTOR // ALL_RIGHTS_RESERVED</div>
+  <div class="links">
+    <a href="#">GitHub</a>
+    <a href="#">Read.cv</a>
+    <a href="#">Are.na</a>
+    <a href="#">Mastodon</a>
+  </div>
+  <div>BUILD_v3.4.1 // 60FPS</div>
+</footer>
+
+<script>
+  const modalOpeners = document.querySelectorAll('[data-modal-open]');
+  const modals = document.querySelectorAll('.modal-overlay');
+  let lastFocusedElement = null;
+
+  function getActiveModal() {
+    return document.querySelector('.modal-overlay.is-open');
+  }
+
+  function openModal(modal) {
+    if (!modal) return;
+
+    lastFocusedElement = document.activeElement;
+    modal.classList.add('is-open');
+    modal.setAttribute('aria-hidden', 'false');
+    document.body.classList.add('modal-open');
+
+    const closeButton = modal.querySelector('[data-modal-close]');
+    if (closeButton) {
+      closeButton.focus();
+    }
+  }
+
+  function closeModal(modal) {
+    if (!modal) return;
+
+    modal.classList.remove('is-open');
+    modal.setAttribute('aria-hidden', 'true');
+    document.body.classList.remove('modal-open');
+
+    if (lastFocusedElement) {
+      lastFocusedElement.focus();
+    }
+  }
+
+  modalOpeners.forEach((opener) => {
+    const modal = document.getElementById(opener.dataset.modalOpen);
+
+    opener.addEventListener('click', () => openModal(modal));
+    opener.addEventListener('keydown', (event) => {
+      if (event.key === 'Enter' || event.key === ' ') {
+        event.preventDefault();
+        openModal(modal);
+      }
+    });
+  });
+
+  modals.forEach((modal) => {
+    modal.querySelectorAll('[data-modal-close]').forEach((closeButton) => {
+      closeButton.addEventListener('click', () => closeModal(modal));
+    });
+
+    modal.addEventListener('click', (event) => {
+      if (event.target === modal) {
+        closeModal(modal);
+      }
+    });
+  });
+
+  document.addEventListener('keydown', (event) => {
+    if (event.key === 'Escape') {
+      closeModal(getActiveModal());
+    }
+  });
+</script>
+
+</body>
+</html>
