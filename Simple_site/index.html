@@ -22,6 +22,10 @@
     --frame: rgba(229, 190, 1, 0.35);
   }
 
+  html {
+    scroll-behavior: smooth;
+  }
+
   * { margin: 0; padding: 0; box-sizing: border-box; }
 
   html, body {
@@ -418,6 +422,8 @@
     font-family: 'JetBrains Mono', ui-monospace, monospace;
     font-size: clamp(0.86rem, 1.35vw, 1.2rem);
     letter-spacing: 0.08em;
+    overflow-wrap: anywhere;
+    max-width: 100%;
     text-shadow:
       2px 0 rgba(255,62,165,0.85),
       -2px 0 rgba(229,190,1,0.55),
@@ -720,6 +726,32 @@
   .production-link.no-link:hover {
     transform: none;
   }
+  .production-link.status-green {
+    border-color: rgba(212,255,90,0.24);
+  }
+  .production-link.status-green:hover,
+  .production-link.status-green:focus-visible {
+    border-color: var(--acid);
+    box-shadow: 0 0 0 1px rgba(212,255,90,0.42), 0 0 20px rgba(212,255,90,0.14);
+  }
+  .production-link.status-green .index,
+  .production-link.status-green .status,
+  .production-link.status-green strong {
+    color: var(--acid);
+    text-shadow: 0 0 14px rgba(212,255,90,0.35);
+  }
+  .production-link.status-red {
+    border-color: rgba(255,47,69,0.24);
+  }
+  .production-link.status-red .index,
+  .production-link.status-red .status,
+  .production-link.status-red strong {
+    color: #ff2f45;
+    text-shadow:
+      2px 0 rgba(255,62,165,0.55),
+      -2px 0 rgba(229,190,1,0.24),
+      0 0 14px rgba(255,47,69,0.34);
+  }
   .production-link .index,
   .production-link .status {
     color: var(--accent);
@@ -744,7 +776,6 @@
     flex-wrap: wrap;
     margin-top: 26px;
   }
-
   /* ============ CTA ============ */
   section.cta {
     padding: 120px 40px;
@@ -816,6 +847,14 @@
       grid-template-columns: 1fr;
       gap: 8px;
     }
+    .stat .value.error-overflow {
+      font-size: clamp(0.64rem, 3vw, 0.86rem);
+      letter-spacing: 0.03em;
+      line-height: 1.25;
+    }
+    .stat .value.error-overflow + .delta {
+      margin-top: 10px;
+    }
     .side-data { display: none; }
   }
 
@@ -856,9 +895,9 @@
   <div class="hero-text">
     <div class="meta">PROFILE_RENDER &nbsp;//&nbsp; v3.4.1</div>
     <h1 class="headline">
-      <span class="glitch">Half</span><br>
-      <span class="strike">human,</span><br>
-      <span class="accent">half</span> signal.
+      <span class="glitch">NIKOLAJ</span><br>
+      <span class="strike">Vincent</span><br>
+      <span class="accent">MASKAV</span> the man.
     </h1>
     <p class="subheadline">
       <span class="hi">Operator profile loaded.</span> Designer, builder, and digital strategist mapping the line between comms and construction - turning concepts into shipped systems with absolute precision.
@@ -926,7 +965,7 @@
     <div class="stat">
       <div class="label">Bugs_Squashed</div>
       <div class="value error-overflow" data-text="ERR_INTEGER_OVERFLOW">ERR_INTEGER_OVERFLOW</div>
-      <div class="delta">acceptable</div>
+      <div class="delta">SQUASHED</div>
     </div>
   </div>
 </section>
@@ -937,7 +976,7 @@
     <h2>Build sharp.<br>Ship cleaner.<br>Stay <em>fun</em>.</h2>
     <div class="manifest-body">
       <p><span class="marker">&gt;</span> I work at the intersection of communication and engineering, treating every project like a system to be diagrammed, prototyped, and pushed into production with no room for error.</p>
-      <p><span class="marker">&gt;</span> The wireframe isn't a metaphor — it's the methodology. <strong>See the structure first.</strong> Then layer the surface. Things that skip step one fall apart at scale.</p>
+      <p><span class="marker">&gt;</span> The color selection isn't a metaphor — it's the methodology. <strong>See the structure first.</strong> Then layer the surface. Things that skip step one fall apart at scale.</p>
       <p><span class="marker">&gt;</span> Currently building tools and small worlds for clients who want their work to feel <strong>alive</strong>, while bridging communication between engineers and operators.</p>
     </div>
   </div>
@@ -971,31 +1010,31 @@
       <button class="modal-close" type="button" data-modal-close aria-label="Close automation popup">X</button>
     </div>
     <div class="modal-body">
-      <p>Automation builds for departments that are stuck repeating the same low leverage tasks. The goal is simple: remove friction, protect human judgment, and give capable people more time for work that actually moves the operation.</p>
+      <p>Workflows for enterprise operations and personal adoption: practical automation that removes repeated handoffs, protects judgment, and frees people to focus on higher value work. The n8n case study is available on GitHub.</p>
       <div class="production-links">
-        <div class="production-link no-link">
+        <a class="production-link status-green" href="https://github.com/nikolaymaskav/n8n-cmdb-automation-case-study" target="_blank" rel="noopener">
           <span class="index">// 01</span>
           <span>
             <strong>n8n Systems</strong>
-            <span>Custom workflows, API handoffs, alerts, and internal process automation</span>
+            <span>CMDB automation case study with workflow logic available on GitHub</span>
           </span>
-          <span class="status">READY</span>
-        </div>
-        <div class="production-link no-link">
+          <span class="status">CASE_STUDY</span>
+        </a>
+        <div class="production-link no-link status-red">
           <span class="index">// 02</span>
           <span>
             <strong>Zapier Operations</strong>
             <span>Fast automations between sales, support, finance, and admin tools</span>
           </span>
-          <span class="status">READY</span>
+          <span class="status">IN_PROGRESS</span>
         </div>
-        <div class="production-link no-link">
+        <div class="production-link no-link status-red">
           <span class="index">// 03</span>
           <span>
             <strong>Make Scenarios</strong>
             <span>Multi step department workflows with routing, formatting, and checks</span>
           </span>
-          <span class="status">READY</span>
+          <span class="status">IN_PROGRESS</span>
         </div>
       </div>
     </div>
@@ -1066,7 +1105,7 @@
   <div class="section-tag" style="justify-content: center;">[ 03 ] &nbsp; OPEN_CHANNEL</div>
   <h2>Got a signal?<br><em>Send it.</em></h2>
   <p>Free slots open Q2. Brief me on the project, the deadline, and the energy. I'll come back with a plan or a polite no.</p>
-  <a href="mailto:hello@example.com" class="btn btn-primary">hello@nullsector.io</a>
+  <a href="mailto:nikolaymaskav@gmail.com" class="btn btn-primary">START_COMMS</a>
 </section>
 
 <footer>
@@ -1144,6 +1183,7 @@
       closeModal(getActiveModal());
     }
   });
+
 </script>
 
 </body>
